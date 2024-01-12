@@ -1,0 +1,73 @@
+name: Golang Build Binary
+
+on:
+  workflow_call:
+    inputs:
+      go-version:
+        required: false
+        description: 'The Go version to download (if necessary) and use. Supports semver spec and ranges. Be sure to enclose this option in single quotation marks.'
+        type: string
+        default: '1.20'
+      go-architecture:
+        description: 'Target architecture for Go to use. Examples: x86, x64. Will use system architecture by default.'
+        default: ''
+        required: false
+        type: string
+      go-system:
+        description: 'Target Operating System'
+        default: 'linux'
+        type: string
+        required: false
+      go-file-path:
+        description: 'Set the path to buildable go file'
+        required: true
+        type: string
+      run-tests:
+        required: false
+        default: false
+        description: 'Execute go tests go test -v ./...'
+        type: boolean
+      artifact-name:
+        required: false
+        default: 'main'
+        type: string
+        description: 'Specify the name the artifact will be available'
+      artifact-path:
+        required: false
+        default: '.'
+        type: string
+        description: 'Specify the path where the artifact will be found'
+    secrets:
+      PAT:
+        description: 'Personal Access Token to get access to other private repos'
+        required: false
+
+run-name: Build ${{ github.repository }} Golang Binary
+
+jobs:
+  go-build:
+    runs-on: ubuntu-latest
+    env:
+      HAS_PAT: ${{ secrets.PAT != '' }}
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Go - Version ${{ inputs.go-version }}
+      uses: actions/setup-go@v4
+      with:
+        go-version: ${{ inputs.go-version }}
+
+    - name: Configure git for private modules if required
+      if: ${{ env.HAS_PAT == 'true' }}
+      run: git config --global url."https://${{ github.actor }}:${{ secrets.PAT }}@github.com".insteadOf "https://github.com"
+
+    - name: Build
+      run: CGO_ENABLED=0 GOOS=${{ inputs.go-system }} GOARCH=${{ inputs.go-architecture }} go build -o ${{ inputs.artifact-path }}/${{ inputs.artifact-name }} ${{ inputs.go-file-path }}
+
+    - name: Test
+      if: ${{ inputs.run-tests == true }}
+      run: go test -v ./...
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.artifact-name }}
+        path: ${{ inputs.artifact-path }}/${{ inputs.artifact-name }}

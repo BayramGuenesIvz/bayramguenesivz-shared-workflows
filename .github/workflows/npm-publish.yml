@@ -1,0 +1,51 @@
+name: Publish NPM Package
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        required: false
+        description: 'Version Spec of the version to use. Examples: 12.x, 10.15.1, >=10.15.0.'
+        default: '18'
+        type: string
+
+run-name: Publish ${{ github.repository }} NPM Package
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node-version }}
+      - name: install and test
+        run: |
+          npm ci
+          npm test --if-present
+
+  publish:
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node-version }}
+          registry-url: https://npm.pkg.github.com/
+          scope: '@westdeutscherrundfunkkoeln'
+      - name: git config
+        run: |
+          git config user.email "${{github.actor_id}}-${{github.actor}}@users.noreply.github.com"
+          git config user.name "${{github.actor}}"
+          git config --global url."https://${{github.actor}}:${{ secrets.GITHUB_TOKEN }}@github.com".insteadOf "https://github.com"
+      - name: install, update version, publish
+        run: |
+          npm ci
+          npm version patch
+          npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
