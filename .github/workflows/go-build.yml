@@ -37,9 +37,10 @@ on:
         default: '.'
         type: string
         description: 'Specify the path where the artifact will be found'
-    secrets:
-      PAT:
-        description: 'Personal Access Token to get access to other private repos'
+      go-cgo:
+        type: string
+        default: 0
+        description: 'Sets CGO_ENABLED value on build command'
         required: false
 
 run-name: Build ${{ github.repository }} Golang Binary
@@ -47,8 +48,6 @@ run-name: Build ${{ github.repository }} Golang Binary
 jobs:
   go-build:
     runs-on: ubuntu-latest
-    env:
-      HAS_PAT: ${{ secrets.PAT != '' }}
     steps:
     - uses: actions/checkout@v4
     - name: Set up Go - Version ${{ inputs.go-version }}
@@ -56,12 +55,11 @@ jobs:
       with:
         go-version: ${{ inputs.go-version }}
 
-    - name: Configure git for private modules if required
-      if: ${{ env.HAS_PAT == 'true' }}
-      run: git config --global url."https://${{ github.actor }}:${{ secrets.PAT }}@github.com".insteadOf "https://github.com"
+    - name: Configure git for private modules
+      run: git config --global url."https://${{ github.actor }}:${{ secrets.ORGA_GITHUB_AUTH_TOKEN }}@github.com".insteadOf "https://github.com"
 
-    - name: Build
-      run: CGO_ENABLED=0 GOOS=${{ inputs.go-system }} GOARCH=${{ inputs.go-architecture }} go build -o ${{ inputs.artifact-path }}/${{ inputs.artifact-name }} ${{ inputs.go-file-path }}
+    - name: Build with CGO_ENABLED=${{ inputs.go-cgo }}
+      run: CGO_ENABLED=${{ inputs.go-cgo }} GOOS=${{ inputs.go-system }} GOARCH=${{ inputs.go-architecture }} go build -o ${{ inputs.artifact-path }}/${{ inputs.artifact-name }} ${{ inputs.go-file-path }}
 
     - name: Test
       if: ${{ inputs.run-tests == true }}
