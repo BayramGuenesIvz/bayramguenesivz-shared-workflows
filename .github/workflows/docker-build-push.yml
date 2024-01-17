@@ -1,4 +1,4 @@
-ame: Docker build and push image
+name: Docker build and push image
 run-name: Build and Push ${{ github.repository }} Docker Image
 
 on:
