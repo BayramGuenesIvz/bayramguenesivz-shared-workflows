@@ -58,12 +58,10 @@ jobs:
     - name: Configure git for private modules
       run: git config --global url."https://${{ github.actor }}:${{ secrets.ORGA_GITHUB_AUTH_TOKEN }}@github.com".insteadOf "https://github.com"
 
-#    - name: Build with CGO_ENABLED=${{ inputs.go-cgo }}
-#      run: CGO_ENABLED=${{ inputs.go-cgo }} GOOS=${{ inputs.go-system }} GOARCH=${{ inputs.go-architecture }} go build -o ${{ inputs.artifact-path }}/${{ inputs.artifact-name }} ${{ inputs.go-file-path }}
+    - name: Build with CGO_ENABLED=${{ inputs.go-cgo }}
+      run: CGO_ENABLED=${{ inputs.go-cgo }} GOOS=${{ inputs.go-system }} GOARCH=${{ inputs.go-architecture }} go build -o ${{ inputs.artifact-path }}/${{ inputs.artifact-name }} ${{ inputs.go-file-path }}
 
-    - name: Build with CGO_ENABLED=1
-      run: CGO_ENABLED=1 GOOS=${{ inputs.go-system }} GOARCH=${{ inputs.go-architecture }} go build -o ${{ inputs.artifact-path }}/${{ inputs.artifact-name }} ${{ inputs.go-file-path }}
-
+ 
     - name: Test
       if: ${{ inputs.run-tests == true }}
       run: go test -v ./...
