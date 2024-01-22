@@ -66,6 +66,9 @@ jobs:
       if: ${{ inputs.run-tests == true }}
       run: go test -v ./...
 
+    - name: Update permissions
+      run: chmod +x ${{ inputs.artifact-path }}/${{ inputs.artifact-name }}
+
     - uses: actions/upload-artifact@v4
       with:
         name: ${{ inputs.artifact-name }}
