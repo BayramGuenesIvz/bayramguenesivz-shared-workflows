@@ -20,11 +20,6 @@ on:
         description: 'Set the name of the build directory'
         default: 'dist'
         type: string
-      build-force:
-        required: false
-        description: 'Force build via --force option'
-        default: false
-        type: boolean
       run-tests:
         required: false
         default: true
@@ -45,11 +40,10 @@ on:
         type: string
         description: 'Script name to build to be executed to build the Application'
         default: 'build'
-      build-envs:
+    secrets:
+      PAT:
+        description: 'Personal Access Token to get access to other private repos'
         required: false
-        type: string
-        description: 'Environment variables used for the build'
-        default: ''
 
 jobs:
   npm-build:
@@ -62,19 +56,15 @@ jobs:
         with:
           node-version: ${{ inputs.node-version }}
           registry-url: "https://npm.pkg.github.com"
-          scope: '@westdeutscherrundfunkkoeln'
       - name: Install dependencies
-        if: ${{ inputs.build-force == false }}
         run: npm ci --ignore-scripts --prefix ${{ inputs.client-path }}
-        if: ${{ inputs.build-force == true }}
-        run: npm ci --force --ignore-scripts --prefix ${{ inputs.client-path }}
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.PAT }}
       - name: Test Application
         if: ${{ inputs.run-tests == true }}
         run: npm run test --if-present --prefix ${{ inputs.client-path }}
       - name: Build Application
-        run: ${{ inputs.build-envs }} npm run ${{ inputs.script-name }} --prefix ${{ inputs.client-path }}
+        run: npm run ${{ inputs.script-name }} --prefix ${{ inputs.client-path }}
 
       - uses: actions/upload-artifact@v4
         with:
