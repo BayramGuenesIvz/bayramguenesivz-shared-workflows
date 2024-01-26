@@ -57,16 +57,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
-
-   
+ 
       - name: Set Node.js 16.x
         uses: actions/setup-node@v3
         with:
           node-version: 16.x
 
-     
-  
       - name: Run install
         uses: borales/actions-yarn@v4
         with:
@@ -78,9 +74,7 @@ jobs:
         with:
           cmd: build:prod # will run `yarn build:prod` command      
 
-
-
-     - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: ${{ inputs.artifact-name }}
           path: ${{ inputs.artifact-path }}/${{ inputs.build-name }}
