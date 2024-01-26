@@ -58,11 +58,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
  
-      - name: Set Node.js 16.x
+      - name: Set Node.js  ${{ inputs.node-version }}
+                          # 16.x
         uses: actions/setup-node@v3
         with:
-          node-version: 16.x
-
+          #node-version:  16.x
+          node-version:   ${{ inputs.node-version }} 
       - name: Run install
         uses: borales/actions-yarn@v4
         with:
