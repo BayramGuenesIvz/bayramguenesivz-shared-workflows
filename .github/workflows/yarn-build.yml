@@ -58,38 +58,29 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-#      - name: Setup node and npm
-#        uses: actions/setup-node@v4
-#        with:
-#          node-version: ${{ inputs.node-version }}
-#          registry-url: "https://npm.pkg.github.com"
-#          scope: '@westdeutscherrundfunkkoeln'
+
    
       - name: Set Node.js 16.x
         uses: actions/setup-node@v3
         with:
           node-version: 16.x
 
-      
-#      - name: Install dependencies
-#        if: ${{ inputs.build-force == false }}
-#        run: npm ci --ignore-scripts --prefix ${{ inputs.client-path }}
-#        env:
-#          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#      - name: Install dependencies --force
-#        if: ${{ inputs.build-force == true }}
-#        run: npm ci --force --ignore-scripts --prefix ${{ inputs.client-path }}
-#        env:
-#          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}    
-      
-      
-      - name: Test Application
-        if: ${{ inputs.run-tests == true }}
-        run: npm run test --if-present --prefix ${{ inputs.client-path }}
-      - name: Build Application
-        run: ${{ inputs.build-envs }} npm run ${{ inputs.script-name }} --prefix ${{ inputs.client-path }}
+     
+  
+      - name: Run install
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: install # will run `yarn install` command
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} # if needed
+      - name: Build production bundle
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: build:prod # will run `yarn build:prod` command      
 
-      - uses: actions/upload-artifact@v4
+
+
+     - uses: actions/upload-artifact@v4
         with:
           name: ${{ inputs.artifact-name }}
           path: ${{ inputs.artifact-path }}/${{ inputs.build-name }}
