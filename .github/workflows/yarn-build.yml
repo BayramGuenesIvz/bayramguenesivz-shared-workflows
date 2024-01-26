@@ -56,7 +56,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@latest
  
       - name: Set Node.js  ${{ inputs.node-version }}
                           # 16.x
