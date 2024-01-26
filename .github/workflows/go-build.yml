@@ -49,7 +49,7 @@ jobs:
   go-build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@latest
+    - uses: actions/checkout@v5
     - name: Set up Go - Version ${{ inputs.go-version }}
       uses: actions/setup-go@v4
       with:
