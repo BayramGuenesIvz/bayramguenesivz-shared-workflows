@@ -68,14 +68,14 @@ jobs:
         uses: borales/actions-yarn@v4
         with:
           cmd: install # will run `yarn install` command
-          dir:  ${{ inputs.client-path }}
+        #  dir:  ${{ inputs.client-path }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} # if needed
       - name: Build production bundle
         uses: borales/actions-yarn@v4
         with:
           cmd: build:prod # will run `yarn build:prod` command      
-
+          dir:  ${{ inputs.client-path }}
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ inputs.artifact-name }}
